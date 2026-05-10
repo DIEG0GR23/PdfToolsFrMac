@@ -1,6 +1,8 @@
 
+Common tools for manipulating PDFs such as merge, split, etc.
+
 ## Autor Principal ✒️
-* **ElAguilaPrograma** - ElAguilaPrograma(https://github.com/ElAguilaPrograma)
+* **Eduardo Muñoz** - ElAguilaPrograma(https://github.com/ElAguilaPrograma)
 * Co-Autor ✒️
 * * **Diego Guerrero** - [DIEG0GR23](https://github.com/DIEG0GR23)
 
