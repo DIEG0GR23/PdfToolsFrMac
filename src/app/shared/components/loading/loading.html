@@ -1,0 +1,5 @@
+@if (loadingService.loading$ | async) {
+    <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-3000">
+        <p-progress-spinner ariaLabel="loading" />
+    </div>
+}   

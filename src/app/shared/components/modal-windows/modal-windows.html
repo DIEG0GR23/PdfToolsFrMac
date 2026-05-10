@@ -1,0 +1,168 @@
+<div class="card flex justify-center">
+    <p-dialog 
+        [modal]="true" 
+        [(visible)]="visible"
+        (onHide)="updateVisibleValue(false) ; updateIsOrderingValue(false)" 
+        (onShow)="updateVisibleValue(true) ; updateIsOrderingValue(isOrdering)"
+        closable="false"
+        draggable="false"
+        [style]="{ width: size === 'large' ? '60rem' : size === 'small' ? '28rem' : size === 'pdf' ? '26rem' : '60rem' }"     
+        [breakpoints]="size === 'small' ? { '500px': '95vw' } : size === 'pdf' ? { '600px': '95vw' } : { '1199px': '75vw', '575px': '95vw' }">
+
+        <ng-template pTemplate="header">
+            <div class="flex justify-between p-4 w-full">
+                <h2 class="text-2xl font-semibold">{{ header }}</h2>
+
+                <input #imageInput
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    (change)="onImageSelected($event)"
+                    hidden />
+
+                <input #fileInput 
+                    type="file"
+                    [multiple]="multipleFiles"
+                    (change)="onFileSelected($event)"
+                    hidden />
+
+                    <div class="relative">
+                        @if (toolId === 4) {
+                            @if (fixedImages){
+                                <p-button label="Fix Images"
+                                    size="small"
+                                    icon="pi pi-sort-alt"
+                                    [raised]="true"
+                                    variant="outlined"
+                                    severity="info"
+                                    pTooltip="Fix image size"
+                                    tooltipPosition="top"
+                                    showDelay="800"
+                                    hideDelay="200"
+                                    (click)="updateFixedImagesValue(false)"
+                                />
+                            }
+                            @else {
+                                <p-button label="Fix Images"
+                                    size="small"
+                                    icon="pi pi-sort-alt"
+                                    [raised]="true"
+                                    variant="outlined"
+                                    severity="secondary"
+                                    pTooltip="Fix image size"
+                                    tooltipPosition="top"
+                                    showDelay="800"
+                                    hideDelay="200"
+                                    (click)="updateFixedImagesValue(true)"
+                                />
+                            }
+                        }
+                        @if (canOrder){
+                            @if (isOrdering){
+                                <p-button label="Order"
+                                    size="small"
+                                    icon="pi pi-sort-alt"
+                                    [raised]="true"
+                                    variant="outlined"
+                                    severity="success"
+                                    pTooltip="Order"
+                                    tooltipPosition="top"
+                                    showDelay="800"
+                                    hideDelay="200"
+                                    (click)="updateIsOrderingValue(false) ; messageDesactiveOrder()"
+                                    class="ml-4"
+                                />
+                            }
+                            @else {
+                                <p-button label="Order"
+                                    size="small"
+                                    icon="pi pi-sort-alt"
+                                    [raised]="true"
+                                    variant="outlined"
+                                    severity="secondary"
+                                    pTooltip="Order files"
+                                    tooltipPosition="top"
+                                    showDelay="800"
+                                    hideDelay="200"
+                                    (click)="updateIsOrderingValue(true) ; messageActiveOrder()"
+                                    class="ml-4"
+                                />
+                            }
+                        }
+
+                        @if (toolId === 0 || toolId === 4 && size === 'large'){
+                            @if (toolId === 4) {
+                                <p-button label="Add"
+                                    size="small"
+                                    icon="pi pi-plus"
+                                    [raised]="true"
+                                    variant="outlined"
+                                    severity="contrast"
+                                    pTooltip="Add files"
+                                    tooltipPosition="top"
+                                    showDelay="800"
+                                    hideDelay="200"
+                                    (onClick)="imageInput.click()"
+                                    class="ml-4"
+                                />
+                            }
+                            @else if (!isExpandingPdfWindow){
+                                <p-button label="Add"
+                                    size="small"
+                                    icon="pi pi-plus"
+                                    [raised]="true"
+                                    variant="outlined"
+                                    severity="contrast"
+                                    pTooltip="Add files"
+                                    tooltipPosition="top"
+                                    showDelay="800"
+                                    hideDelay="200"
+                                    (onClick)="fileInput.click()"
+                                    class="ml-4"
+                                />
+                            }
+                        }
+                        @else if (size !== 'pdf'){
+                            <p-button label="Change"
+                                size="small"
+                                icon="pi pi-file-edit"
+                                [raised]="true"
+                                variant="outlined"
+                                severity="contrast"
+                                pTooltip="Change file"
+                                tooltipPosition="top"
+                                showDelay="800"
+                                hideDelay="200"
+                                (onClick)="fileInput.click()"
+                                class="ml-4"
+                            />
+                        }
+                    </div>
+            </div>
+        </ng-template>
+
+        <ng-content>
+            
+        </ng-content>
+
+        <ng-template pTemplate="footer">
+            <div class="flex justify-end w-full mt-4">
+                <p-button [label]="!isExpandingPdfWindow ? 'Cancel' : 'Close'" 
+                    severity="danger" 
+                    (click)="closeModalWindow($event)" 
+                    variant="outlined"
+                />
+                @if (!isExpandingPdfWindow) {
+                    <p-button label="Send" 
+                        severity="primary"  
+                        class="ml-4"
+                        (click)="sendFiles()"
+                        [disabled]="pagesToDelete.length === 0 && toolId === 2"
+                        [pTooltip]="pagesToDelete.length === 0 && toolId === 2 ? 'Select pages to delete' : 'Send files'"
+                        showDelay="700"
+                    />
+                }
+            </div>
+        </ng-template>
+    </p-dialog>
+</div>

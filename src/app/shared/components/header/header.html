@@ -1,0 +1,23 @@
+<header 
+  class="w-full h-20 flex items-center justify-between px-6 py-4" 
+  [ngClass]="darkModeEnables() ? 'shadow-lg/30 shadow-gray' : 'shadow-lg/20'">
+  
+  <div>
+    <h1 class="font-semibold">PDF Tools <span class="pi pi-wrench"></span></h1>
+    <small>By - El Aguila Programa</small>
+  </div>
+
+  <div>
+    <p-button 
+      (onClick)="toogleDarkMode()" 
+      size="small"
+      variant="outlined"
+      [icon]="darkModeEnables() ? 'pi pi-lightbulb' : 'pi pi-moon'"
+      [ngClass]="{
+        'transition transform duration-500 ease-in-out rotate-180': darkMode,
+        'transition transform duration-500 ease-in-out rotate-0': !darkMode
+      }"
+    >
+    </p-button>
+  </div>
+</header>

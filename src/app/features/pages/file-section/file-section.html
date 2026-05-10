@@ -1,0 +1,292 @@
+<div class="w-full p-6 flex h-full">
+
+    <!-- Dialog an toast from confirm remove pdf -->
+    <p-toast position="bottom-left"/>
+    <p-confirmdialog />
+
+    <p-button label="Go back" icon="pi pi-arrow-left" class="fixed" routerLink="/home" routerLinkActive="active"></p-button>
+    <div class="flex flex-col justify-center items-center space-y-9 w-full">
+        <h1 class="text-8xl text-shadow-lg/20"> {{ toolName }}</h1>
+        <h4 class="text-4xl text-shadow-md"> Select your files to begin </h4>
+
+        @if (toolId === 4){
+            <input #imageInput
+                type="file"
+                accept="image/*"
+                multiple
+                (change)="onImageSelected($event)"
+                hidden />
+
+            <p-button label="Upload images" 
+                size="large" 
+                icon="pi pi-upload"
+                (onClick)="imageInput.click()" />
+        }
+        @else {
+            <input #fileInput
+                type="file"
+                accept="application/pdf"
+                [multiple]="toolId === 0"
+                (change)="onFileSelected($event)"
+                hidden />
+
+            <p-button label="Upload files" 
+                size="large" 
+                icon="pi pi-upload"
+                (onClick)="fileInput.click()" />
+        }
+
+    </div>
+</div>
+
+<!-- Modal Windows -->
+@if (toolId === 0) { 
+    <app-modal-windows 
+        [(visible)]="visible"
+        header="Merge PDFs"
+        [multipleFiles]="true"
+        [canOrder]="true"
+        [(isOrdering)]="isOrdering"
+        [size]="'large'"
+        [pdfs]="pdfs"
+        [toolId]="toolId"
+        >
+        
+        <!-- YISUS DEL FUTURO LA ORIENTACIÓ0N ES MIXED -->
+        <div [ngClass]="'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6'" 
+            cdkDropList 
+            cdkDropListOrientation="mixed" 
+            (cdkDropListDropped)="drop($event)">
+
+            @for (pdf of pdfs; track i; let i = $index) {
+                <div cdkDrag [cdkDragDisabled]="!isOrdering">
+                    <p-card class="brightness-100 hover:brightness-85 transition-all shadow-lg/30"
+                        (click)="removeSelectedPdf(i)"
+                        [pTooltip]="isOrdering ? 'Drag to order' : 'Click to remove'"
+                        tooltipPosition="top">
+
+                        <img [src]="pdf.thumbnail"/>
+                        <p class="text-center truncate mt-2 px-2">{{ pdf.file.name }}</p>
+
+                    </p-card>
+                </div>
+            }
+        </div>
+    </app-modal-windows>
+}
+
+<!-- Modal Windows -Split PDF -->
+@if (toolId === 1) {
+    <app-modal-windows
+        [(visible)]="visible"
+        header="Split PDF"
+        [multipleFiles]="false"
+        [canOrder]="false"
+        [(isOrdering)]="isOrdering"
+        [size]="'small'"
+        [pdfs]="pdfs"
+        [toolId]="toolId"
+        [(startPage)]="startPage"
+        [(endPage)]="endPage"
+        >
+
+        <div class="flex flex-col w-full items-center">
+            @for (pdf of pdfs; track i; let i = $index) {
+                <div cdkDrag [cdkDragDisabled]="!isOrdering">
+                    <p-card class="brightness-100 hover:brightness-85 transition-all shadow-lg/30"
+                        (click)="expandPdf(pdf.file, pdf.file.name)"
+                        pTooltip="Click to expand"
+                        tooltipPosition="top">
+
+                        <img [src]="pdf.thumbnail"/>
+                        <p class="text-center truncate mt-2 px-2">{{ pdf.file.name }}</p>
+
+                    </p-card>
+
+                    @if (toolId !== 0) {
+                        <div class="card flex flex-col gap-4 items-center m-auto">
+                            <label for="startPage">Start Page</label>
+                            <p-inputnumber inputId="startPage" [(ngModel)]="startPage" />
+
+                            <label for="endPage">End Page</label>
+                            <p-inputnumber inputId="endPage" [(ngModel)]="endPage" />
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+        
+    </app-modal-windows>
+}
+
+<!-- Modal Windows -Delete Pages -->
+@if (toolId === 2) {
+    <app-modal-windows
+        [(visible)]="visible"
+        header="Delete Pages"
+        [multipleFiles]="false"
+        [canOrder]="false"
+        [(isOrdering)]="isOrdering"
+        [size]="'large'"
+        [toolId]="toolId"
+        [(pdf)]="pdf"
+        [pagesToDelete]="pagesToDelete"
+        >
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
+            @for (page of pdf?.thumbnails; track i; let i = $index) {
+                <div cdkDrag [cdkDragDisabled]="!isOrdering">
+                    <p-card class="relative cursor-pointer hover:brightness-85 transition-all shadow-lg/30"
+                        (click)="addPageToDeleteList(i + 1)"
+                        [pTooltip]="pagesToDelete.includes(i + 1) ? 'Click to unselect' : 'Click to select'"
+                        tooltipPosition="top"
+                        [ngClass]="{ 'ring-4 ring-red-500 brightness-75': pagesToDelete.includes(i + 1) }">
+
+                        <img [src]="page"/>
+                        <p class="text-center truncate mt-2 px-2">{{ i + 1 }}</p>
+
+                        <!-- Overlay oscuro -->
+                        @if (pagesToDelete.includes(i + 1)) {
+                            <div class="absolute inset-0 bg-black/50 rounded pointer-events-none"></div>
+
+                            <!-- X de seleccionado -->
+                            <div
+                            class="absolute top-2 right-2 w-8 h-8
+                                bg-red-600 text-white font-bold
+                                flex items-center justify-center
+                                rounded-full shadow-lg
+                                animate-scale-in pointer-events-none">
+                                ✕
+                            </div>
+                        }
+                    </p-card>
+                </div>
+            }
+        </div>
+    </app-modal-windows>
+}
+
+<!-- Modal to display extended pdf -->
+<app-modal-windows
+    [(visible)]="isExpandingPdf"
+    size="pdf"
+    header="{{ pdfExpandedName }}"
+    [isExpandingPdfWindow]="true">
+
+    <div class="flex flex-col items-center gap-4">
+        @for (page of expandedPdfPages; track $index) {
+            <div class="relative">
+                <img [src]="page" alt="Page {{ $index + 1 }}" class="shadow-lg" loading="lazy"/>
+                 <div class="absolute top-2 right-2 bg-black/50 text-white font-bold p-2 text-sm rounded-full shadow-lg">
+                    {{ $index + 1 }}
+                </div>
+            </div>
+        }
+    </div>
+
+</app-modal-windows>
+
+<!-- Enum pages modal -->
+@if (toolId === 3) {
+    <app-modal-windows
+        [(visible)]="visible"
+        header="Enumerate Pages"
+        [multipleFiles]="false"
+        [canOrder]="false"
+        [(isOrdering)]="isOrdering"
+        [size]="'small'"
+        [toolId]="toolId"
+        [(startPage)]="startPage"
+        [pdfs]="pdfs">
+
+        <div class="flex flex-col w-full items-center">
+            @for (pdf of pdfs; track i; let i = $index) {
+                <div cdkDrag [cdkDragDisabled]="!isOrdering">
+                    <p-card class="brightness-100 hover:brightness-85 transition-all shadow-lg/30 w-full justify-center"
+                        (click)="expandPdf(pdf.file, pdf.file.name)"
+                        pTooltip="Click to expand"
+                        tooltipPosition="top">
+
+                        <img [src]="pdf.thumbnail"/>
+                        <p class="text-center truncate mt-2 px-2">{{ pdf.file.name }}</p>
+
+                    </p-card>
+
+                    @if (toolId !== 0) {
+                        <div class="card flex flex-col gap-4 items-center m-auto">
+                            <label for="startPage">Start Page</label>
+                            <p-inputnumber inputId="startPage" [(ngModel)]="startPage" />
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+    </app-modal-windows>
+}
+
+<!-- Images to pdf -->
+ @if (toolId === 4) {
+    <app-modal-windows
+        [(visible)]="visible"
+        header="Images to PDF"
+        [multipleFiles]="true"
+        [canOrder]="true"
+        [(isOrdering)]="isOrdering"
+        [size]="'large'"
+        [images]="images"
+        [toolId]="toolId"
+        [(fixedImages)]="fixedImages"
+        >
+        <div [ngClass]="'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6'" 
+            cdkDropList 
+            cdkDropListOrientation="mixed" 
+            (cdkDropListDropped)="dropImage($event)">
+
+            @for (image of images; track i; let i = $index) {
+                <div cdkDrag [cdkDragDisabled]="!isOrdering">
+                    <p-card class="brightness-100 hover:brightness-85 transition-all shadow-lg/30"
+                        (click)="removeSelectedImage(i)"
+                        [pTooltip]="isOrdering ? 'Drag to order' : 'Click to remove'"
+                        tooltipPosition="top">
+
+                        <img [src]="image.previewUrl"/>
+                        <p class="text-center truncate mt-2 px-2">{{ image.file.name }}</p>
+
+                    </p-card>
+                </div>
+            }
+        </div>
+    </app-modal-windows>
+ }
+
+@if (showModalPdfToImage()) {
+    <app-modal-windows
+        [(visible)]="visible"
+        header="PDF to Images"
+        [multipleFiles]="false"
+        [canOrder]="false"
+        [(isOrdering)]="isOrdering"
+        [size]="'small'"
+        [pdfs]="pdfs"
+        [toolId]="toolId">
+        <div class="flex flex-col w-full items-center">
+            @for (pdf of pdfs; track i; let i = $index) {
+                <div cdkDrag [cdkDragDisabled]="!isOrdering">
+                    <p-card class="brightness-100 hover:brightness-85 transition-all shadow-lg/30 w-full justify-center"
+                        (click)="expandPdf(pdf.file, pdf.file.name)"
+                        pTooltip="Click to expand"
+                        tooltipPosition="top">
+
+                        <img [src]="pdf.thumbnail"/>
+                        <p class="text-center truncate mt-2 px-2">{{ pdf.file.name }}</p>
+
+                    </p-card>
+
+                </div>
+            }
+        </div>
+    </app-modal-windows>
+}
+
+
+

@@ -1,0 +1,33 @@
+<div class="w-full p-6">
+    <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 pt-2">
+        @if (isLoading) {
+            <p class="text-4xl">Loading tools...</p>
+        }
+
+        @if (errorMessage) {
+            <p class="text-red-600 text-4xl">{{ errorMessage }}</p>
+            <p-button label="Reintentar" (onClick)="onLoadTools()" />
+        }
+
+        @if (toolsInfo.length > 0){
+            @for (tools of toolsInfo; track tools.toolId){
+                @if (tools.isActive){
+                    <p-card header="{{ tools.name }}"
+                        class="text-center p-4 h-full">
+                        <div class="flex flex-col space-y-12">
+                            <p class="truncate" 
+                                pTooltip="{{ tools.description }}"
+                                tooltipPosition="top"
+                                showDelay="800"
+                                hideDelay="200">{{ tools.description }}</p>
+                            <p-button label="Go" 
+                                (click)="navigateToFileSection(tools.toolId, tools.name)"
+                                icon="pi pi-arrow-right"
+                            />
+                        </div>
+                    </p-card>
+                }
+            }
+        }
+    </div>
+</div>
