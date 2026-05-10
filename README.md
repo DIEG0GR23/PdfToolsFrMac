@@ -1,6 +1,8 @@
-# Tauri + Angular
 
-This template should help get you started developing with Tauri and Angular.
+## Autor Principal ✒️
+* **ElAguilaPrograma** - ElAguilaPrograma(https://github.com/ElAguilaPrograma)
+* Co-Autor ✒️
+* * **Diego Guerrero** - [DIEG0GR23](https://github.com/DIEG0GR23)
 
 ## Recommended IDE Setup
 
